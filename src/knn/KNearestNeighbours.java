@@ -53,7 +53,7 @@ public class KNearestNeighbours implements Classifier{
 	            new Comparator<Entry<Sample,Double>>() {
 	                @Override
 	                public int compare(Entry<Sample,Double> e1, Entry<Sample,Double> e2) {
-	                    return e2.getValue().compareTo(e1.getValue());
+	                    return e1.getValue().compareTo(e2.getValue());
 	                }
 	            }
 	    );
