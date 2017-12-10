@@ -22,7 +22,7 @@ public class KFoldCrossValidation {
 	public double kFoldCrossValidate(Classifier classifier) {
 		double crossValidationResult =0;
 		for (int i=0; i<kFold.getNumberOfFolds(); i++) {	//for each validation set
-			System.out.println("internal validation fold number "+i);
+			System.out.println("\t \t Internal validation - fold number "+i);
 
 			Dataset validationSet = kFold.getFold(i);		//validation set selection
 			ArrayList<Dataset>  learningSets = kFold.getOtherFolds(i);

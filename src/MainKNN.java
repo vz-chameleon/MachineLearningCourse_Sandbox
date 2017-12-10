@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import javax.management.RuntimeErrorException;
+
 import data.Dataset;
 import distances.ManhattanDistance;
 import knn.KNearestNeighbours;
@@ -11,8 +13,10 @@ public class MainKNN {
 	public static void main(String[] args) {
 		
 		Dataset iris=new Dataset();
-		System.out.println(iris);
-		iris.loadFromCSVFile("ressources/data/iris.data");
+//		System.out.println(iris);
+		if(args.length==0)
+			throw new RuntimeException("Not enough arguments ! Please specify path to data file !");
+		iris.loadFromCSVFile(args[0]);
 //		iris.normalize();
 
 
@@ -35,7 +39,7 @@ public class MainKNN {
 		
 		nestedCrossValidation.NestedCrossValidate(knnClassifier, parameterSpace, iris, false);
 		
-		System.out.println("\n\nNested cross-validation results :");
+		System.out.println("\n\n =============================== Nested cross-validation Results ===============================");
 		System.out.println(nestedCrossValidation);
 		
 

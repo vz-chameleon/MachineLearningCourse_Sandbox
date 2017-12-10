@@ -19,10 +19,11 @@ public class NestedCV {
 	private ArrayList<HashMap<ArrayList<Double>,Double>> nestedCrossValidationResults;
 	private HashMap<ArrayList<Double>,Double> outerCrosvalidationResults;
 	private double performanceEstimation;
-
+	private ArrayList<ArrayList<Double>> selectedParameters;
 
 	public NestedCV(int akFoldNumber) {
 		this.kFoldNumber=akFoldNumber;
+		selectedParameters=new ArrayList<>();
 	}
 
 	public void NestedCrossValidate(Classifier aClassifier, ParameterSpace aParameterSpace, Dataset aDataset, boolean isDatasetRandomised) {
@@ -31,7 +32,7 @@ public class NestedCV {
 		KFold kFold = new KFold(kFoldNumber, aDataset, isDatasetRandomised);
 
 		for (int K = 0; K<kFoldNumber; K++) { //outer loop : for each external test fold
-			System.out.println("External Test fold number "+K);
+			System.out.println("\n_______________ External Test fold number "+K+"  _______________\n");
 			HashMap<ArrayList<Double>,Double> innerCrossValidationResults = new HashMap<>();
 			Dataset testDataset = kFold.getFold(K);
 			ArrayList<Dataset> innerFolds = kFold.getOtherFolds(K);
@@ -39,7 +40,7 @@ public class NestedCV {
 			KFoldCrossValidation cv = new KFoldCrossValidation(innerKfold);
 
 			for (ArrayList<Double> paramValues : aParameterSpace.createEveryParameterCombination()) { //inner loop : for each combination of parameters
-				System.out.println("parameters values: "+paramValues);
+				System.out.println("\t Classifier Parameters Values : "+paramValues);
 				aClassifier.setParameters(paramValues);
 				innerCrossValidationResults.put(paramValues, cv.kFoldCrossValidate(aClassifier));
 			}
@@ -64,7 +65,8 @@ public class NestedCV {
 			}
 					);
 
-			ArrayList<Double> mostEffectiveParameters = sortedEntries.get(0).getKey();
+			ArrayList<Double> mostEffectiveParameters=sortedEntries.get(0).getKey();
+			this.selectedParameters.add(mostEffectiveParameters);
 			aClassifier.setParameters(mostEffectiveParameters);
 			Dataset testDataset = kFold.getFold(K);
 			Dataset learingDataset = new Dataset();
@@ -83,12 +85,22 @@ public class NestedCV {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("=============*****======== NestedCV ========*****==========\n");
-		sb.append("OuterK:"+kFoldNumber+"\n\n");
+		StringBuilder sb = new StringBuilder("\n");
+		sb.append("Dataset partitions (kfold number) : "+kFoldNumber+"\n\n");
+		
 		HashMap[] nestedCrossvalidationArray = new HashMap[nestedCrossValidationResults.size()];
 		nestedCrossValidationResults.toArray(nestedCrossvalidationArray);
-		sb.append(Arrays.deepToString(nestedCrossvalidationArray));
-		sb.append("\n\n Global performance estimation using testing folds : "+performanceEstimation);
+		sb.append("Internal cross validations : \n");
+		
+		for(Object o: nestedCrossvalidationArray){
+			sb.append("\t"+o.toString()+"\n");
+		}
+		//sb.append(Arrays.deepToString(nestedCrossvalidationArray));
+		sb.append("\n\n Global performance estimation for most effective parameters using testing folds  : \n");
+		sb.append("\t Most effective Parameters : \t ");
+		for(ArrayList<Double> param : selectedParameters)
+			sb.append(param.toString()+",");
+		sb.append("\n\t Performance : \t \t \t"+performanceEstimation);
 		return sb.toString();
 	}
 }
