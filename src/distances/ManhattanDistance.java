@@ -1,4 +1,6 @@
-package knn;
+package distances;
+
+import data.Sample;
 
 public class ManhattanDistance implements DistanceMetric {
 

@@ -1,4 +1,4 @@
-package knn;
+package data;
 
 public class Sample {
 	

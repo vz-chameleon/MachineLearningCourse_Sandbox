@@ -1,6 +1,6 @@
-import knn.Dataset;
+import data.Dataset;
+import distances.ManhattanDistance;
 import knn.KNearestNeighbours;
-import knn.ManhattanDistance;
 
 public class MainKNN {
 

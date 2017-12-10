@@ -8,7 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class KNearestNeighbours {
+import classification.Classifier;
+import data.Dataset;
+import data.Sample;
+import distances.DistanceMetric;
+
+public class KNearestNeighbours implements Classifier{
 	
 	private Dataset trainingData;
 	private int k; //Number of nearest neighbors to compute

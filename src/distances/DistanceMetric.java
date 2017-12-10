@@ -1,4 +1,6 @@
-package knn;
+package distances;
+
+import data.Sample;
 
 /**
  * An interface to define necessary functions 
