@@ -75,8 +75,8 @@ public class Dataset {
 	                features[i] = Double.parseDouble(split[i]);
 	            
 	            final String label = split[features.length];
-	             
-	            this.addEntry(new Sample(sampleNum, features, label));
+	            if (features.length!=0)
+	            	this.addEntry(new Sample(sampleNum, features, label));
 	            sampleNum++;
 	        }
 	        
