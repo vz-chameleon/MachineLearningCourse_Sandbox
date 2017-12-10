@@ -16,6 +16,6 @@ public interface DistanceMetric {
 	 * @param sample2 - A vector containing all attribute values for the second individual
 	 * @return the distance between those individuals
 	 */
-	public double computeDistance(double[] sample1, double[] sample2);
+	public double computeDistance(Sample sample1, Sample sample2);
 	
 }

@@ -4,22 +4,26 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Dataset {
 	
-	private List<Double[]> attributes;
-	private List<String> classLabels;
+	private List<Sample> data;
 		
+	
+	public Dataset(){
+		data=new ArrayList<>();
+	}
+	
 	/**
 	 * Add a single sample (attributes and class label) to the data set
 	 * @param attr
 	 * @param cLabel
 	 */
-	public void addEntry(Double[] attr, String cLabel){
-		attributes.add(attr);
-		classLabels.add(cLabel);
+	public void addEntry(Sample aNewSample){
+		data.add(aNewSample);
 	}	
 	
 	/**
@@ -33,6 +37,7 @@ public class Dataset {
         try{
 			br = new BufferedReader(new FileReader(csvFilepath));
 			
+			int sampleNum=1;
 	        while ((line = br.readLine()) != null) {
 	        	final String[] split = line.split(",");
 	        	
@@ -42,7 +47,8 @@ public class Dataset {
 	            
 	            final String label = split[features.length];
 	             
-	            this.addEntry(features, label);
+	            this.addEntry(new Sample(sampleNum, features, label));
+	            sampleNum++;
 	        }
 	        
 	        
@@ -62,6 +68,7 @@ public class Dataset {
 		
 	}
 	
+	
 	/**
 	 * Get an array containing all values for a particular dataset attribute
 	 * This fonction searches for the specified attributes values in each sample or individual
@@ -70,15 +77,16 @@ public class Dataset {
 	 * @return an array containing all sample's values for the given attribute
 	 */
 	public Double[] getAttributeValues(int attributeIndex){
-		if (attributeIndex > this.attributes.get(0).length)
-			throw new RuntimeException("Dataset : you asked for attribute number" + attributeIndex+" and there are only "+
-					this.attributes.get(0).length+" attributes in this dataset !");
 		
-		Double [] datasetAttributeValues=new Double[this.attributes.size()];
+		if (attributeIndex > this.data.get(0).getFeatures().length)
+			throw new RuntimeException("Dataset : you asked for attribute number" + attributeIndex+" and there are only "+
+					data.get(0).getFeatures().length +" attributes in this dataset !");
+		
+		Double [] datasetAttributeValues=new Double[this.data.size()];
 		
 		int k=0;
-		for (Double[] attrList: this.attributes){
-			datasetAttributeValues[k]=attrList[attributeIndex];
+		for(Sample sample: this.data){
+			datasetAttributeValues[k]=sample.getFeatures()[attributeIndex];
 			k++;
 		}
 		
@@ -90,7 +98,7 @@ public class Dataset {
 	 */
 	public void normalize(){
 		
-		int attrNumber= this.attributes.get(0).length;
+		int attrNumber= this.data.get(0).getFeatures().length;
 		double min = 0;
 		double max = 0;
 		
@@ -107,8 +115,15 @@ public class Dataset {
 			max=attrArray[sampleNumber-1];
 			
 			//Normalize values for this attribute
-			for (Double[] attrList:this.attributes){
-				attrList[attributeIndex]= (attrList[attributeIndex] - min)/(max - min);
+			for(Sample sample: this.data){
+				//Get unnormalized features
+				Double[] oldFeatures=sample.getFeatures();
+				
+				//Normalize single value
+				oldFeatures[attributeIndex]= (oldFeatures[attributeIndex] - min)/(max - min);
+				
+				//Set features value with normalized ones
+				sample.setFeatures(oldFeatures);
 			}
 			
 		}
@@ -116,21 +131,15 @@ public class Dataset {
 	}
 	
 	public String toString(){
-		StringBuilder sb = new StringBuilder("=========== DATASET ===============");
+		StringBuilder sb = new StringBuilder("========================== DATASET =======================");
 		
-		int sampleNum = this.classLabels.size();
-		
-		for(int sn=0;sn<sampleNum;sn++){
-			sb.append("Sample "+ sn+1 + " : "+ this.attributes.get(sn).toString() +" | class label : "+classLabels.get(sn));
+		for (Sample s:this.data){
+			sb.append(s.toString()+" \n ");
 		}
 		return sb.toString();
 	}
 	
-	public List<Double[]> getAttributes() {
-		return attributes;
-	}
-
-	public List<String> getClassLabels() {
-		return classLabels;
+	public List<Sample> getData(){
+		return this.data;
 	}
 }
