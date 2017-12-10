@@ -1,5 +1,7 @@
 package distances;
 
+import java.util.Arrays;
+
 import data.Sample;
 
 public class ManhattanDistance implements DistanceMetric {
@@ -12,7 +14,14 @@ public class ManhattanDistance implements DistanceMetric {
 	public double computeDistance(Sample sample1, Sample sample2) {
 		
 		if(sample1.getFeatures().length != sample2.getFeatures().length) {
-        	throw new RuntimeException("Manhattan Distance : vectors size are not the same !");
+        	throw new RuntimeException("Manhattan Distance : vectors size are not the same ("+sample1.getFeatures().length+"!="+sample2.getFeatures().length+") !\n Sample1:"
+        			+
+        			sample1
+        			+
+					"\n Sample2:"
+        			+
+					sample2
+					);
         }
         
         double dist = 0;
