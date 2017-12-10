@@ -115,5 +115,13 @@ public class KNearestNeighbours implements Classifier{
 		return getMostRepresentedClass(getNearestKNeighbors(Y));
 	}
 	
+	@Override
+	public void setParameters(ArrayList<Double> paramValues) {
+		if (paramValues.size()>1)
+			throw new Error("Too many parameters for this classifier");
+		else if (paramValues.size()<1)
+			throw new Error("Too few parameters for this classifier");
+		else this.k=paramValues.get(0).intValue();
+	}
 	
 }
