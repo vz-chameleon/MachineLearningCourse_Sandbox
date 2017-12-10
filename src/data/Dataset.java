@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -19,13 +20,40 @@ public class Dataset {
 	}
 	
 	/**
+	 * Create a copy of another data set.
+	 * The Sample objects are the same objects in both data sets, but the List<Sample> data attributes are different.
+	 * This allows, for example, shuffling the copy without shuffling the original.
+	 * @param originalDataset
+	 */
+	public Dataset(Dataset originalDataset) {
+		data = new ArrayList<>(originalDataset.getData());
+	}
+
+	/**
 	 * Add a single sample (attributes and class label) to the data set
 	 * @param attr
 	 * @param cLabel
 	 */
 	public void addEntry(Sample aNewSample){
 		data.add(aNewSample);
-	}	
+	}
+
+	/**
+	 * Add an entire data set to the local data set
+	 * @param dataset
+	 */
+	public void addDataset(Dataset aNewDataset){
+		data.addAll(aNewDataset.getData());
+	}
+
+	/**
+	 * Add an entire list of data sets to the local data set
+	 * @param dataset
+	 */
+	public void addDatasetList(List<Dataset> aListOfNewDatasets){
+		for (Dataset aNewDataset : aListOfNewDatasets)
+			addDataset(aNewDataset);
+	}
 	
 	/**
 	 * Load features and labels from a CSV file where labels are ALWAYS the last feature
@@ -142,5 +170,13 @@ public class Dataset {
 	
 	public List<Sample> getData(){
 		return this.data;
+	}
+
+	public int getSize() {
+		return this.data.size();
+	}
+
+	public void shuffle() {
+		Collections.shuffle(this.data);
 	}
 }
