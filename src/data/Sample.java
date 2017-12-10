@@ -1,5 +1,7 @@
 package data;
 
+import java.util.Arrays;
+
 public class Sample {
 	
 	private int num;
@@ -19,7 +21,7 @@ public class Sample {
 	}
 	
 	public String toString(){
-		return "Sample "+ num + " : " + this.features.toString() +" | class label : "+ classLabel;
+		return "Sample "+ num + " : " + Arrays.deepToString(this.features) +" | class label : "+ classLabel;
 	}
 	
 	public void setFeatures(Double[] features) {
