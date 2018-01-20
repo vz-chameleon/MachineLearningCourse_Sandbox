@@ -5,6 +5,7 @@ A sandbox repository for projects given during our Supervised and Unsupervised L
 This sandbox was the playground of :
 ```
 Timothy Garwood
+Thibault Lupinski
 Valentina Zelaya
 ```
 
