@@ -109,8 +109,13 @@ public class SonarDataParser {
 	}
 	
 	public Dataset getResultingDataset() {
-	return resultingDataset;
-}
+		return resultingDataset;
+	}
+	
+	
+	public void exportResultingDataset(String output_file_path){
+		this.resultingDataset.exportAsCsv(output_file_path);
+	}
 	
 	
 //	public Dataset getResultingTrainDataset() {
@@ -134,6 +139,7 @@ public class SonarDataParser {
 		SonarDataParser sdp = new SonarDataParser();
 		sdp.parseSonarData();
 		System.out.println(sdp.getResultingDataset());
+		sdp.exportResultingDataset("resources/data/sonar_ginnet.csv");
 	}
 	
 

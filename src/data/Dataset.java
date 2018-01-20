@@ -1,9 +1,11 @@
 package data;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -178,5 +180,30 @@ public class Dataset {
 
 	public void shuffle() {
 		Collections.shuffle(this.data);
+	}
+	
+	public void exportAsCsv(String output_file_path){
+		PrintWriter pw;
+		try {
+			pw = new PrintWriter(new File(output_file_path));
+		     
+			StringBuilder sb = new StringBuilder();
+			for (Sample s : this.data){
+				
+				for(Double f : s.getFeatures()){
+					sb.append(String.valueOf(f)+",");
+				}
+				sb.append(s.getClassLabel()+"\n");
+				
+			}
+			pw.write(sb.toString());
+	        pw.close();
+	        System.out.println("done!");
+		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      
 	}
 }
