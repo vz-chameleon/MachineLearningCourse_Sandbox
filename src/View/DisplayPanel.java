@@ -5,23 +5,26 @@ import java.awt.Graphics;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import KohonenCard.Neuron;
 import KohonenCard.SOM;
+import data.Sample;
 
 public class DisplayPanel extends JPanel implements Observer{
 	SOM model;
 	int n1, n2;
 	Color BACKGROUND_COLOR = Color.LIGHT_GRAY, LINE_COLOR = Color.GRAY;
+	int border_mergin = 3;
 	
 	public DisplayPanel(SOM som, int p1, int p2) {
 		model = som;
 		som.addObserver(this);
 		
-		this.setBorder(new LineBorder(Color.BLACK,5));
+		this.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK));
 		n1 = p1;
 		n2 = p2;
 	}
@@ -30,8 +33,12 @@ public class DisplayPanel extends JPanel implements Observer{
 	public void paint(Graphics g)
 	{
 		int xsize = (int) this.getSize().getWidth(), ysize = (int) this.getSize().getHeight();
-		g.setColor(BACKGROUND_COLOR);
+		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, xsize, ysize);
+		g.setColor(BACKGROUND_COLOR);
+		xsize = xsize - 2*border_mergin;
+		ysize = ysize - 2*border_mergin;
+		g.fillRect(border_mergin, border_mergin, xsize, ysize);
 		g.setColor(Color.BLACK);
 		for (float i = 0.1f; i <= 1.0f; i+=0.1f) {
 			g.drawLine((int)(i*xsize), 0, (int)(i*xsize), ysize);
@@ -39,20 +46,24 @@ public class DisplayPanel extends JPanel implements Observer{
 		}
 		for (Neuron neuron : model.getNeurones()) {
 			g.setColor(chooseColor(neuron.getDataClass()));
-			int x = (int)(neuron.getWeight(n1)*xsize), y = (int)(neuron.getWeight(n2)*ysize);
-			g.fillOval(x-5, y-5, 10, 10);
+			int x = border_mergin + (int)(neuron.getWeight(n1)*xsize), y = border_mergin + (int)(neuron.getWeight(n2)*ysize);
+			int size = 5;
+			if (neuron.exemple != -1) {
+				size = neuron.exemple + 1;
+			}
+			g.fillOval(x-size, y-size, 2*size, 2*size);
 			g.setColor(LINE_COLOR);
 			for (Neuron neighboor : neuron.getNeighbours()) {
 				if (neighboor.getNumber() > neuron.getNumber()) {
-					int x2 = (int)(neighboor.getWeight(n1)*xsize), y2 = (int)(neighboor.getWeight(n2)*ysize);
+					int x2 = border_mergin + (int)(neighboor.getWeight(n1)*xsize), y2 = border_mergin + (int)(neighboor.getWeight(n2)*ysize);
 					g.drawLine(x, y, x2, y2);
 				}
 			}
 		}
-		if (model.actual_data != null) {
-			g.setColor(Color.RED);
-			int x = (int)(model.actual_data.getFeatures()[n1]*xsize), y = (int)(model.actual_data.getFeatures()[n2]*ysize);
-			g.fillOval(x-10, y-10, 20, 20);
+		for (Sample data : model.actual_data) {
+			g.setColor(chooseColor(data.getClassLabel()));
+			int x = (int)(data.getFeatures()[n1]*xsize), y = (int)(data.getFeatures()[n2]*ysize);
+			g.fillOval(x-3, y-3, 6, 6);
 		}
 	}
 

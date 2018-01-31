@@ -26,11 +26,13 @@ public class MainInterface extends JFrame implements Observer{
 	public MainInterface(SOM som) {
 		
 		super("Kohonen Card");
-		setSize (900,600);
+		setSize (1080,1080);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		model = som;
 		model.addObserver(this);
-		this.setLayout(new GridLayout(1,4));
+		GridLayout big_layout = new GridLayout(1,2);
+		big_layout.setHgap(5);
+		this.setLayout(big_layout);
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		
@@ -39,10 +41,14 @@ public class MainInterface extends JFrame implements Observer{
 		int n = som.getDataSize();
 		int d = factorial(n)/(factorial(2)*factorial(n-2));
 		int i1 = 0, i2 = 1;
+		GridLayout layout;
 		if (n == 2)
-			overall_display.setLayout(new GridLayout(1,1));
+			layout = new GridLayout(1,1);
 		else
-			overall_display.setLayout(new GridLayout(2,0));
+			layout = new GridLayout(2,0);
+		layout.setHgap(5);
+		layout.setVgap(5);
+		overall_display.setLayout(layout);
 		for (int i = 0; i < d; i++) {
 			DisplayPanel dp = new DisplayPanel(som, i1, i2);
 			dp.setSize(300,300);
@@ -57,8 +63,9 @@ public class MainInterface extends JFrame implements Observer{
 		c.gridy = 0;
 		c.gridwidth = 3;
 		this.add(overall_display, c);
+		this.add(new CountPanel(som));
 		
-		JPanel parameters = new JPanel();
+		/*JPanel parameters = new JPanel();
 		parameters.setLayout(new GridLayout(0,2));		
 		
 		JLabel jl1= new JLabel("Learning Rate");
@@ -75,14 +82,14 @@ public class MainInterface extends JFrame implements Observer{
 		parameters.add(jtfepoch);
 		c.gridwidth = 1;
 		c.gridx = 3;
-		this.add(parameters, c);
+		this.add(parameters, c);*/
 	}
 	
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		jtflr.setText(model.learning_rate+"");
+		/*jtflr.setText(model.learning_rate+"");
 		jtfsig.setText(model.sigma+"");
-		jtfepoch.setText(model.actual_epoch+"");
+		jtfepoch.setText(model.actual_epoch+"");*/
 	}
 
 }
