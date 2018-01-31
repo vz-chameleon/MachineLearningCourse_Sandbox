@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import classification.Classifier;
+import data.Dataset;
 import data.Sample;
 import knn.KNearestNeighbours;
 
-public class SOM extends Observable{
+public class SOM extends Observable implements Classifier {
 	
 	/** Listes des neurones de la carte **/
 	private List<Neuron> neurons;
@@ -37,7 +39,10 @@ public class SOM extends Observable{
 	/** Valeurs utilisés pour estimer la progression et stopper l'algorithme **/
 	public int actual_epoch;
 	private int maximal_epoch;
-	public Sample actual_data;
+	public ArrayList<Sample> actual_data;
+	
+	/** **/
+	public KNearestNeighbours knn;
 	
 	public SOM(Sample data, int... dimensions) {
 		this.nb_dimensions = dimensions.length;
@@ -53,18 +58,20 @@ public class SOM extends Observable{
 		}
 		
 		actual_epoch = 0;
-		maximal_epoch = 100;
+		maximal_epoch = 150;
 		
-		lr_init = 0.5;
-		lr_fluctuation = 0.005;
+		lr_init = 1.0;
+		lr_fluctuation = 0.003;
 		learning_rate = lr_init;
 		learning_rate_decreasing = true;
-		sigma_init = 0.25;
-		sigma_fluctuation = 0.03;
+		sigma_init = 0.7;
+		sigma_fluctuation = 0.07;
 		sigma = sigma_init;
 		sigma_decreasing = true;
 		
-		fillMap(false);
+		fillMap(true);
+		
+		actual_data = new ArrayList<Sample>();
 	}
 	
 	
@@ -109,7 +116,7 @@ public class SOM extends Observable{
     		Neuron n;
     		if (regular) {
 	    		for (int h = 0; h < data_size; h++)
-	    			value[h] = (double)position[h%nb_dimensions] / (double)dimension_size[h%nb_dimensions];
+	    			value[h] = /*Math.random();//*/0.5;//*/(double)position[h%nb_dimensions] / (double)dimension_size[h%nb_dimensions];
 	    		n = new Neuron(data_size, position, value);
     		} else {
     			n = new Neuron(data_size, position);
@@ -155,7 +162,6 @@ public class SOM extends Observable{
 	/** Vide la carte de tous ses neurones **/
 	public void emptyMap(){
     	neurons.clear();
-    	nb_neurons = 0;
     }  
 	
 	public Neuron step(Sample data, boolean learning) {
@@ -166,20 +172,17 @@ public class SOM extends Observable{
 		if (sigma_decreasing)
 		    sigma = sigma_init*Math.pow((sigma_fluctuation/sigma_init), Math.pow(t, 1.2));
 		actual_epoch++;
-		actual_data = data;
+		actual_data.add(data);
 		Neuron winner = getNeareastNeuron(data);
-		System.out.println(data);
-		System.out.println(winner);
-		System.out.println(winner.distance(data));
-		if (learning)
+		if (learning) {
 			learningStep(winner, data);
-		this.setChanged();
-		this.notifyObservers();
+			classificationWithKNN(knn);
+		}
 		return winner;
 	}
 	
 	/** Utilisation de KNN pour donner une classe à chaque neurones **/
-	public HashMap<String,Integer> classificationWithKNN(KNearestNeighbours knn) {
+	public void classificationWithKNN(KNearestNeighbours knn) {
 		HashMap<String,Integer> count = new HashMap<String,Integer>();
 		for (Neuron n : neurons) {
 			String data_class = knn.classify(n.getSample());
@@ -189,7 +192,8 @@ public class SOM extends Observable{
 			else
 				count.put(data_class, 1);
 		}
-		return count;
+		this.setChanged();
+		this.notifyObservers(count);
 	}
 	
     /**
@@ -250,5 +254,99 @@ public class SOM extends Observable{
 			sb.append(n.toString()+"\n");
 		}
 		return sb.toString();
+	}
+
+
+
+	@Override
+	public void buildClassifier(Dataset data) {
+		fillMap(true);
+		actual_epoch = 0;
+		actual_data.clear();
+		for (Sample Y : data.getData()) {
+			step(Y,true);
+		}
+		classificationWithKNN(knn);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public double classifyAll(Dataset datas) {
+		double res = 0.0;
+		int cpt = 0;
+		for (Sample data : datas.getData()) {
+			String s = classify(data);
+			if (s.equals(data.getClassLabel()))
+				res += 1.0;
+			data.setClassLabel(s);
+			cpt++;
+		}
+		res = res/cpt;
+		this.setChanged();
+		this.notifyObservers(res);
+		return res;
+	}
+
+	@Override
+	public String classify(Sample Y) {
+		Neuron n = step(Y,false);
+		n.exemple++;
+		return n.getDataClass();
+	}
+	
+	public Neuron classify(Sample Y, boolean neuron) {
+		Neuron n = step(Y,false);
+		return n;
+	}
+
+
+
+
+	@Override
+	public void setParameters(ArrayList<Double> paramValues) {
+		/*if (paramValues.size()<2)
+			throw new Error("Too few parameters for this classifier");
+		else if (paramValues.size()>2)
+			throw new Error("Too many parameters for this classifier");
+		else {		
+			int cpt = 0;
+			lr_init = paramValues.get(cpt++).doubleValue();
+			//lr_fluctuation = paramValues.get(cpt++).doubleValue();
+			learning_rate = lr_init;
+			learning_rate_decreasing = true;
+			sigma_init = paramValues.get(cpt++).doubleValue();
+			//sigma_fluctuation = paramValues.get(cpt++).doubleValue();
+			sigma = sigma_init;
+			sigma_decreasing = true;
+		}
+		/*
+			int cpt = 0;
+			this.nb_dimensions = paramValues.get(cpt).intValue();
+			int[] dimensions = new int[paramValues.get(cpt++).intValue()];
+			for (int i = 0; i < dimensions.length; i++)
+				dimensions[i] = paramValues.get(cpt++).intValue();
+			this.dimension_size = dimensions;
+			this.data_size = paramValues.get(cpt++).intValue();
+			this.nb_neurons = 1;
+			for (int i = 0; i < nb_dimensions; i++)
+				this.nb_neurons *= dimension_size[i];
+			this.topo_distances = new int[nb_neurons][];
+			for (int i = 0; i < nb_neurons; i++) {
+				this.topo_distances[i] = new int[i + 1];
+			}
+			actual_epoch = 0;
+			maximal_epoch = paramValues.get(cpt++).intValue();
+		}*/
+	}
+
+
+
+	public void update() {
+		this.setChanged();
+		this.notifyObservers();		
 	}
 }

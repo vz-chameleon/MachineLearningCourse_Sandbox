@@ -16,7 +16,11 @@ public class Neuron {
 	/** Coordonnées dans la carte **/
 	private List<Integer> coords;
 	
+	/** Identification du neurone **/
 	private int number;
+	
+	/** Exemples associés au neurones **/
+	public int exemple = 0;
 	
 	/** Constructeur avec une initialisation aléatoire des poids 
 	 * @param dimension : nombre de poids du neurone
